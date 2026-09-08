@@ -1,8 +1,8 @@
 diff --git a/backend/genesys.conf.in b/backend/genesys.conf.in
-index e6788f5..2c147b8 100644
+index 6e6a8d7b0..8c50d1fba 100644
 --- a/backend/genesys.conf.in
 +++ b/backend/genesys.conf.in
-@@ -161,5 +161,8 @@ usb 0x1803 0x162e
+@@ -167,5 +167,8 @@ usb 0x1803 0x162e
  # Plustek OpticBook 3800
  usb 0x07b3 0x1300
  
@@ -12,7 +12,7 @@ index e6788f5..2c147b8 100644
  # Plustek OpticFilm 7600i
  usb 0x07b3 0x0c3b
 diff --git a/backend/genesys/enums.h b/backend/genesys/enums.h
-index 88fc9c3..c928c7f 100644
+index 02cfc43e1..1c7c0e1b4 100644
 --- a/backend/genesys/enums.h
 +++ b/backend/genesys/enums.h
 @@ -179,6 +179,7 @@ enum class ModelId : unsigned
@@ -31,7 +31,7 @@ index 88fc9c3..c928c7f 100644
      CCD_PLUSTEK_OPTICFILM_7200,
      CCD_PLUSTEK_OPTICFILM_7200I,
      CCD_PLUSTEK_OPTICFILM_7300,
-@@ -300,6 +302,7 @@ enum class AdcId : unsigned
+@@ -301,6 +303,7 @@ enum class AdcId : unsigned
      IMG101,
      KVSS080,
      PLUSTEK_OPTICBOOK_3800,
@@ -39,7 +39,7 @@ index 88fc9c3..c928c7f 100644
      PLUSTEK_OPTICFILM_7200,
      PLUSTEK_OPTICFILM_7200I,
      PLUSTEK_OPTICFILM_7300,
-@@ -360,6 +363,7 @@ enum class GpioId : unsigned
+@@ -361,6 +364,7 @@ enum class GpioId : unsigned
      KVSS080,
      MD_5345,
      PLUSTEK_OPTICBOOK_3800,
@@ -47,7 +47,7 @@ index 88fc9c3..c928c7f 100644
      PLUSTEK_OPTICFILM_7200,
      PLUSTEK_OPTICFILM_7200I,
      PLUSTEK_OPTICFILM_7300,
-@@ -403,6 +407,7 @@ enum class MotorId : unsigned
+@@ -404,6 +408,7 @@ enum class MotorId : unsigned
      KVSS080,
      MD_5345,
      PLUSTEK_OPTICBOOK_3800,
@@ -56,7 +56,7 @@ index 88fc9c3..c928c7f 100644
      PLUSTEK_OPTICFILM_7200I,
      PLUSTEK_OPTICFILM_7300,
 diff --git a/backend/genesys/genesys.cpp b/backend/genesys/genesys.cpp
-index ab1367e..3336e22 100644
+index d7ec4229c..208dbf22f 100644
 --- a/backend/genesys/genesys.cpp
 +++ b/backend/genesys/genesys.cpp
 @@ -38,6 +38,8 @@
@@ -68,7 +68,7 @@ index ab1367e..3336e22 100644
  #include "gl124_registers.h"
  #include "gl841_registers.h"
  #include "gl842_registers.h"
-@@ -2290,7 +2292,9 @@ static void genesys_shading_calibration_impl(Genesys_Device* dev, const Genesys_
+@@ -2298,7 +2300,9 @@ static void genesys_shading_calibration_impl(Genesys_Device* dev, const Genesys_
      if (is_dark) {
          // wait some time to let lamp to get dark
          dev->interface->sleep_ms(200);
@@ -79,7 +79,7 @@ index ab1367e..3336e22 100644
          // make sure lamp is bright again
          // FIXME: what about scanners that take a long time to warm the lamp?
          dev->interface->sleep_ms(500);
-@@ -2307,8 +2311,27 @@ static void genesys_shading_calibration_impl(Genesys_Device* dev, const Genesys_
+@@ -2315,8 +2319,27 @@ static void genesys_shading_calibration_impl(Genesys_Device* dev, const Genesys_
          return;
      }
  
@@ -109,7 +109,7 @@ index ab1367e..3336e22 100644
  
      dev->cmd_set->end_scan(dev, &local_reg, true);
  
-@@ -3398,6 +3421,149 @@ static void genesys_send_shading_coefficient(Genesys_Device* dev, const Genesys_
+@@ -3407,6 +3430,149 @@ static void genesys_send_shading_coefficient(Genesys_Device* dev, const Genesys_
                              coeff,
                              target_code);
        break;
@@ -259,7 +259,7 @@ index ab1367e..3336e22 100644
      case SensorId::CIS_CANON_LIDE_700F:
      case SensorId::CIS_CANON_LIDE_100:
      case SensorId::CIS_CANON_LIDE_200:
-@@ -3666,7 +3832,19 @@ static void genesys_flatbed_calibration(Genesys_Device* dev, Genesys_Sensor& sen
+@@ -3675,7 +3841,19 @@ static void genesys_flatbed_calibration(Genesys_Device* dev, Genesys_Sensor& sen
              DBG(DBG_proc, "%s : genesys_dark_shading_calibration local_reg ", __func__);
              debug_dump(DBG_proc, local_reg);
  
@@ -280,7 +280,7 @@ index ab1367e..3336e22 100644
                  dev->interface->record_progress_message("genesys_dark_shading_calibration");
                  genesys_dark_shading_calibration(dev, sensor, local_reg);
                  genesys_repark_sensor_before_shading(dev);
-@@ -3677,7 +3855,7 @@ static void genesys_flatbed_calibration(Genesys_Device* dev, Genesys_Sensor& sen
+@@ -3686,7 +3864,7 @@ static void genesys_flatbed_calibration(Genesys_Device* dev, Genesys_Sensor& sen
  
              genesys_repark_sensor_after_white_shading(dev);
  
@@ -290,7 +290,7 @@ index ab1367e..3336e22 100644
                      genesys_dark_shading_by_constant(*dev);
                  } else {
 diff --git a/backend/genesys/gl846.cpp b/backend/genesys/gl846.cpp
-index 6db312a..b563140 100644
+index 11688166b..bc94dee89 100644
 --- a/backend/genesys/gl846.cpp
 +++ b/backend/genesys/gl846.cpp
 @@ -31,6 +31,8 @@
@@ -561,10 +561,10 @@ index 6db312a..b563140 100644
 +        slope_dpi = (slope_dpi == 200) ? 600 : 300;
 +    }
 +
-     exposure_time = sensor.exposure_lperiod;
+     exposure_time = session.params.exposure_lperiod;
      const auto& motor_profile = get_motor_profile(dev->motor.profiles, exposure_time, session);
  
-@@ -755,7 +852,6 @@ void CommandSetGl846::begin_scan(Genesys_Device* dev, const Genesys_Sensor& sens
+@@ -756,7 +853,6 @@ void CommandSetGl846::begin_scan(Genesys_Device* dev, const Genesys_Sensor& sens
      }
  
      scanner_clear_scan_and_feed_counts(*dev);
@@ -572,7 +572,7 @@ index 6db312a..b563140 100644
      std::uint8_t val = dev->interface->read_register(REG_0x01);
      val |= REG_0x01_SCAN;
      dev->interface->write_register(REG_0x01, val);
-@@ -807,7 +903,23 @@ void CommandSetGl846::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
+@@ -808,7 +904,23 @@ void CommandSetGl846::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
      }
  
      unsigned channels = 3;
@@ -596,7 +596,7 @@ index 6db312a..b563140 100644
  
      const auto& calib_sensor = sanei_genesys_find_sensor(dev, resolution, channels,
                                                           dev->settings.scan_method);
-@@ -826,6 +938,28 @@ void CommandSetGl846::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
+@@ -827,6 +939,28 @@ void CommandSetGl846::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
          flags |= ScanFlag::USE_XPA;
      } else {
          move = static_cast<int>(dev->model->y_offset_calib_white);
@@ -625,7 +625,7 @@ index 6db312a..b563140 100644
      }
  
      move = static_cast<float>((move * move_dpi) / MM_PER_INCH);
-@@ -838,8 +972,31 @@ void CommandSetGl846::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
+@@ -839,8 +973,31 @@ void CommandSetGl846::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
      session.params.startx = 0;
      session.params.starty = static_cast<unsigned>(move);
      session.params.pixels = dev->model->x_size_calib_mm * resolution / MM_PER_INCH;
@@ -658,7 +658,7 @@ index 6db312a..b563140 100644
      session.params.channels = channels;
      session.params.scan_method = dev->settings.scan_method;
      session.params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
-@@ -890,6 +1047,63 @@ void CommandSetGl846::send_shading_data(Genesys_Device* dev, const Genesys_Senso
+@@ -892,6 +1049,63 @@ void CommandSetGl846::send_shading_data(Genesys_Device* dev, const Genesys_Senso
    /* base addr of data has been written in reg D0-D4 in 4K word, so AHB address
     * is 8192*reg value */
  
@@ -722,7 +722,7 @@ index 6db312a..b563140 100644
    /* write actual color channel data */
    for(i=0;i<3;i++)
      {
-@@ -968,7 +1182,15 @@ void CommandSetGl846::asic_boot(Genesys_Device* dev, bool cold) const
+@@ -970,7 +1184,15 @@ void CommandSetGl846::asic_boot(Genesys_Device* dev, bool cold) const
          dev->interface->write_register(0x0e, 0x00);
      }
  
@@ -739,7 +739,7 @@ index 6db312a..b563140 100644
          if (dev->usb_mode == 1) {
              val = 0x14;
          } else {
-@@ -998,7 +1220,8 @@ void CommandSetGl846::asic_boot(Genesys_Device* dev, bool cold) const
+@@ -1000,7 +1222,8 @@ void CommandSetGl846::asic_boot(Genesys_Device* dev, bool cold) const
  
      // set up clocks
      if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7400 ||
@@ -750,7 +750,7 @@ index 6db312a..b563140 100644
          dev->interface->write_0x8c(0x10, 0x0c);
          dev->interface->write_0x8c(0x13, 0x0c);
 diff --git a/backend/genesys/image_pipeline.cpp b/backend/genesys/image_pipeline.cpp
-index 8dae0c5..d221671 100644
+index 8dae0c522..d221671b2 100644
 --- a/backend/genesys/image_pipeline.cpp
 +++ b/backend/genesys/image_pipeline.cpp
 @@ -24,6 +24,7 @@
@@ -842,7 +842,7 @@ index 8dae0c5..d221671 100644
                                                         std::size_t width) :
      source_(source),
 diff --git a/backend/genesys/image_pipeline.h b/backend/genesys/image_pipeline.h
-index 39aed71..a838a16 100644
+index 39aed71ee..a838a167f 100644
 --- a/backend/genesys/image_pipeline.h
 +++ b/backend/genesys/image_pipeline.h
 @@ -481,6 +481,53 @@ private:
@@ -900,7 +900,7 @@ index 39aed71..a838a16 100644
  class ImagePipelineNodeCalibrate : public ImagePipelineNode
  {
 diff --git a/backend/genesys/low.cpp b/backend/genesys/low.cpp
-index 3ffc24a..46c378f 100644
+index 3ffc24a1d..46c378f59 100644
 --- a/backend/genesys/low.cpp
 +++ b/backend/genesys/low.cpp
 @@ -321,6 +321,12 @@ bool sanei_genesys_is_buffer_empty(Genesys_Device* dev)
@@ -1000,7 +1000,7 @@ index 3ffc24a..46c378f 100644
  }
  
 diff --git a/backend/genesys/tables_frontend.cpp b/backend/genesys/tables_frontend.cpp
-index 65fc7f4..583fa89 100644
+index f91a5cd29..d45dae194 100644
 --- a/backend/genesys/tables_frontend.cpp
 +++ b/backend/genesys/tables_frontend.cpp
 @@ -694,6 +694,33 @@ void genesys_init_frontend_tables()
@@ -1038,7 +1038,7 @@ index 65fc7f4..583fa89 100644
      * reg3: offset
      * reg6: gain
 diff --git a/backend/genesys/tables_gpo.cpp b/backend/genesys/tables_gpo.cpp
-index f129262..e01aac1 100644
+index f129262e8..e01aac13a 100644
 --- a/backend/genesys/tables_gpo.cpp
 +++ b/backend/genesys/tables_gpo.cpp
 @@ -460,6 +460,15 @@ void genesys_init_gpo_tables()
@@ -1058,7 +1058,7 @@ index f129262..e01aac1 100644
      gpo.id = GpioId::CANON_LIDE_80;
      gpo.regs = {
 diff --git a/backend/genesys/tables_memory_layout.cpp b/backend/genesys/tables_memory_layout.cpp
-index 77c7ce7..93ae857 100644
+index 77c7ce726..93ae857b8 100644
 --- a/backend/genesys/tables_memory_layout.cpp
 +++ b/backend/genesys/tables_memory_layout.cpp
 @@ -51,6 +51,21 @@ void genesys_init_memory_layout_tables()
@@ -1084,10 +1084,10 @@ index 77c7ce7..93ae857 100644
      ml.models = { ModelId::PLUSTEK_OPTICFILM_7400, ModelId::PLUSTEK_OPTICFILM_8200I };
      ml.regs = {
 diff --git a/backend/genesys/tables_model.cpp b/backend/genesys/tables_model.cpp
-index 6d02db8..2d5ffa6 100644
+index 321d17919..84c7c736d 100644
 --- a/backend/genesys/tables_model.cpp
 +++ b/backend/genesys/tables_model.cpp
-@@ -2844,6 +2844,63 @@ void genesys_init_usb_device_tables()
+@@ -2864,6 +2864,63 @@ void genesys_init_usb_device_tables()
      s_usb_devices->emplace_back(0x07b3, 0x1300, model);
  
  
@@ -1152,7 +1152,7 @@ index 6d02db8..2d5ffa6 100644
      model.name = "canon-image-formula-101";
      model.vendor = "Canon";
 diff --git a/backend/genesys/tables_motor.cpp b/backend/genesys/tables_motor.cpp
-index 3cc576f..ba8a509 100644
+index 3cc576ff4..ba8a509ef 100644
 --- a/backend/genesys/tables_motor.cpp
 +++ b/backend/genesys/tables_motor.cpp
 @@ -606,6 +606,18 @@ void genesys_init_motor_tables()
@@ -1175,10 +1175,10 @@ index 3cc576f..ba8a509 100644
      motor.id = MotorId::CANON_LIDE_80;
      motor.base_ydpi = 2400;
 diff --git a/backend/genesys/tables_sensor.cpp b/backend/genesys/tables_sensor.cpp
-index fb18abc..71bdc83 100644
+index 09ca861f7..e7856f722 100644
 --- a/backend/genesys/tables_sensor.cpp
 +++ b/backend/genesys/tables_sensor.cpp
-@@ -3730,6 +3730,91 @@ void genesys_init_sensor_tables()
+@@ -3764,6 +3764,91 @@ void genesys_init_sensor_tables()
          }
      }
  
@@ -1271,12 +1271,12 @@ index fb18abc..71bdc83 100644
      sensor.sensor_id = SensorId::CIS_CANON_LIDE_80; // gl841
      sensor.full_resolution = 1200; // real hardware limit is 2400
 diff --git a/doc/descriptions/genesys.desc b/doc/descriptions/genesys.desc
-index 33fe735..0a2dae3 100644
+index 43b07365c..efc6db8b6 100644
 --- a/doc/descriptions/genesys.desc
 +++ b/doc/descriptions/genesys.desc
-@@ -71,6 +71,12 @@
- :status :complete
- :comment "900, 1800, 3600 and 7200 dpi resolutions are supported in both regular transparency and infrared modes"
+@@ -77,6 +77,12 @@
+ :status :unsupported
+ :comment "GL128 based"
  
 +:model "OpticBook 4800"
 +:interface "USB"

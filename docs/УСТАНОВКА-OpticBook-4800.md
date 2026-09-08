@@ -37,7 +37,10 @@
   это сбрасывает чип, если предыдущая программа завершилась нештатно.
 - Все команды выполняются в терминале. Строки, начинающиеся с `sudo`,
   спросят пароль.
-- Патч рассчитан на sane-backends **версии 1.2.1** — берём именно её.
+- Патч рассчитан на **текущую ветку master** sane-backends (на момент
+  написания это версия 1.4.0) — её и берём. На релизный тег 1.2.1 патч
+  тоже ложился, но в master с тех пор изменился код, вокруг которого мы
+  правим, поэтому актуальна именно master-версия.
 - Системный пакет `libsane1` остаётся установленным: наша сборка ставится
   в `/usr/local`, а в системный каталог подкладывается только один файл
   backend-а. Это самый безопасный путь; откат — одна команда.
@@ -81,21 +84,27 @@ sudo apt install -y git build-essential autoconf automake libtool \
 
 ---
 
-## 3. Забираем исходники SANE версии 1.2.1
+## 3. Забираем исходники SANE (ветка master)
 
 ```bash
 cd ~
-git clone --branch 1.2.1 --depth 1 https://gitlab.com/sane-project/backends.git sane-backends
+git clone https://gitlab.com/sane-project/backends.git sane-backends
 cd ~/sane-backends
 ```
 
-Проверка, что версия та:
+Клонируем целиком, без `--depth`: обрезанный клон не даст потом
+перебазировать правки, если master уйдёт вперёд.
+
+Проверка версии:
 
 ```bash
-git describe --tags
+grep -m1 AC_INIT configure.ac
 ```
 
-Должно вывести `1.2.1`.
+Выведет строку с текущей версией — на момент написания 1.4.0. Именно это
+число будет в имени собранной библиотеки (`libsane-genesys.so.1.4.0`);
+если у вас версия другая, подставляйте её везде, где ниже написано
+`1.4.0`.
 
 ---
 
@@ -131,8 +140,16 @@ git status --short
 
 Предупреждение `trailing whitespace` при наложении безвредно.
 
-Если `git apply --check` ругается — значит версия исходников не 1.2.1
-или патч повреждён при копировании. Не продолжайте, разберитесь с этим.
+Если `git apply --check` ругается — значит master ушёл вперёд и задел
+те же места, что и патч. Тогда накладывайте с трёхсторонним слиянием:
+
+```bash
+git apply --3way ~/opticbook4800-genesys-v5.patch
+git status --short
+```
+
+Строки со статусом `UU` — файлы с конфликтом, их правят руками (маркеры
+`<<<<<<<` / `>>>>>>>` в тексте). Если конфликтов нет, всё встало само.
 
 ---
 
@@ -154,7 +171,7 @@ make -j$(nproc)
 Проверка, что библиотека собралась:
 
 ```bash
-ls -l backend/.libs/libsane-genesys.so.1.2.1
+ls -l backend/.libs/libsane-genesys.so.*
 ```
 
 ---
@@ -170,7 +187,8 @@ sudo ldconfig
 После этого появятся:
 
 - `/usr/local/bin/scanimage` — наша версия утилиты;
-- `/usr/local/lib/sane/libsane-genesys.so.1.2.1` — backend с поддержкой 4800;
+- `/usr/local/lib/sane/libsane-genesys.so.1.4.0` — backend с поддержкой 4800
+  (номер версии соответствует версии исходников);
 - `/usr/local/etc/sane.d/` — конфигурация для нашей сборки.
 
 ---
@@ -354,8 +372,11 @@ CCD нет. Файлы лежат в домашнем каталоге того 
 из `/usr/local`. Подкладываем туда наш backend:
 
 ```bash
-sudo cp /usr/local/lib/sane/libsane-genesys.so.1.2.1 \
-        /usr/lib/x86_64-linux-gnu/sane/libsane-genesys.so.1.2.1
+sudo cp /usr/local/lib/sane/libsane-genesys.so.1.4.0 \
+        /usr/lib/x86_64-linux-gnu/sane/
+sudo ln -sf libsane-genesys.so.1.4.0 \
+        /usr/lib/x86_64-linux-gnu/sane/libsane-genesys.so.1
+sudo ldconfig
 ```
 
 Чтобы обновление пакетов не вернуло старый файл, замораживаем системные
@@ -510,8 +531,11 @@ tail -50 ~/genesys.log
 ```bash
 cd ~/sane-backends
 make -j$(nproc) && sudo make install && sudo ldconfig
-sudo cp /usr/local/lib/sane/libsane-genesys.so.1.2.1 \
-        /usr/lib/x86_64-linux-gnu/sane/libsane-genesys.so.1.2.1
+sudo cp /usr/local/lib/sane/libsane-genesys.so.1.4.0 \
+        /usr/lib/x86_64-linux-gnu/sane/
+sudo ln -sf libsane-genesys.so.1.4.0 \
+        /usr/lib/x86_64-linux-gnu/sane/libsane-genesys.so.1
+sudo ldconfig
 rm -f ~/.sane/plustek-opticbook-4800.cal
 ```
 
@@ -563,7 +587,8 @@ rm -f ~/.sane/plustek-opticbook-4800.cal ~/.sane/opticbook4800-white-*.dat
 ```bash
 cd ~/sane-backends && python3 ~/patch_dbg_cache.py
 make -j$(nproc) 2>&1 | grep -E " error"; sudo make install >/dev/null && sudo ldconfig
-sudo cp /usr/local/lib/sane/libsane-genesys.so.1.2.1 /usr/lib/x86_64-linux-gnu/sane/libsane-genesys.so.1.2.1
+sudo cp /usr/local/lib/sane/libsane-genesys.so.1.4.0 /usr/lib/x86_64-linux-gnu/sane/
+sudo ln -sf libsane-genesys.so.1.4.0 /usr/lib/x86_64-linux-gnu/sane/libsane-genesys.so.1
 ```
 
 Смотреть:

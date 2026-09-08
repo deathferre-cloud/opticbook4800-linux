@@ -17,7 +17,7 @@ The patch has been submitted upstream: [sane-project/backends!1009](https://gitl
 
 | Path | Contents |
 |---|---|
-| `opticbook4800-genesys-v5.patch` | the patch itself, applies to the sane-backends 1.2.1 tag |
+| `opticbook4800-genesys-v5.patch` | the patch itself, applies to the sane-backends master branch |
 | `ob4800-conf-desc.patch` | entries for `genesys.conf.in` and `genesys.desc` |
 | `make_patch_v5.sh` | rebuilds the patch from a working tree and verifies it on a clean clone |
 | `docs/УСТАНОВКА-OpticBook-4800.md` | installation guide, in Russian: build, install, one-off white reference capture, troubleshooting |
