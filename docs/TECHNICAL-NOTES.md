@@ -398,3 +398,46 @@ right until measured.
 `tables_motor.cpp`, `tables_sensor.cpp`, `backend/genesys.conf.in`,
 `doc/descriptions/genesys.desc` — see the attached patch
 (`opticbook4800-genesys-v5.patch`, applies cleanly to the 1.2.1 tag).
+
+
+## v6: after the rebase onto master
+
+Everything below was found while rebasing the patch from the 1.2.1 tag onto
+current master (1.4.0) and re-verifying every mode on hardware.
+
+- **Line period.** master takes `session.params.exposure_lperiod` from the
+  `--scan-exposure-time` option, initialised once at open for the start-up
+  resolution and not updated on resolution change. On this scanner the
+  period is tied to the clocking group (3500 / 5500 / 11000) and its motor
+  profile; with the option value the 600 dpi calibration came back as a
+  flat line (black frames), the 600 dpi scan doubled the image and the
+  1200 dpi read-out hung. `compute_session()` now sets the period from the
+  sensor profile for this model, in one place for every session.
+- **Calibration sanity check.** A shading pass whose white reads below a
+  fifth of the target is refused with `SANE_STATUS_INVAL` and a message,
+  instead of producing black scans and being cached until the cache file
+  is deleted by hand.
+- **Shading pass at every clocking** runs in the scan's own window and
+  read-out mode with the lamp-off dark pass (it used to at 1200 dpi only).
+  At 300/600 dpi the old three-channel pass from pixel 0 was displaced
+  against the scan by about 12 px, which left ±2 % dust residue.
+- **Table offset.** The averaged lines are stored with the offset
+  `startx * full_resolution / xres` (182 at 600 dpi, 180 at 300 dpi); the
+  table upload read them from `startx * shading_resolution / xres` (91 /
+  45). Both are 183 at 1200 dpi, which hid the mismatch. Symptom: a copy of
+  every dust dip at +startx pixels (3.9 mm at 600 dpi, 12 mm at 300 dpi)
+  that moves with `OB4800_SHADING_SHIFT` while the dip itself stays.
+- **White reference as a smooth multiplier.** A pass with a different
+  window comes back shifted by a few pixels, so a reference captured with
+  another width put its dust dips next to the real ones. The reference is
+  now applied as `white = dark + (live - dark) * S(file - dark) /
+  S(live - dark)` with S a ~2.5 mm moving average: the lamp ripple comes
+  from the file, the fine structure from the live pass. The capture width
+  no longer matters.
+- **End of the CCD line.** A window reaching the last ~10 px of the line
+  comes back shifted at the full clock (33 px of margin are enough);
+  `x_size` is 212.0 mm.
+- **Parking.** `move_back_home()` is always called with waiting for this
+  model: with the non-waiting call the process exited while the carriage
+  was still travelling home, and the next scan's command drove it into the
+  stop.

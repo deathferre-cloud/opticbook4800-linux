@@ -7,7 +7,7 @@
 ширине яркостью, в том числе из `simple-scan`, `xsane`, `gscan2pdf` и любых
 других программ, использующих SANE.
 
-Понадобится файл `opticbook4800-genesys-v5.patch`, чистый белый лист A4 и
+Понадобится файл `opticbook4800-genesys-v6.patch`, чистый белый лист A4 и
 около 30 минут.
 
 Что нового в v4 по сравнению с v3: включена штатная калибровка затенения
@@ -110,12 +110,12 @@ grep -m1 AC_INIT configure.ac
 
 ## 4. Накладываем патч
 
-Скопируйте `opticbook4800-genesys-v5.patch` в домашний каталог, затем:
+Скопируйте `opticbook4800-genesys-v6.patch` в домашний каталог, затем:
 
 ```bash
 cd ~/sane-backends
-git apply --check ~/opticbook4800-genesys-v5.patch && echo "патч ложится чисто"
-git apply ~/opticbook4800-genesys-v5.patch
+git apply --check ~/opticbook4800-genesys-v6.patch && echo "патч ложится чисто"
+git apply ~/opticbook4800-genesys-v6.patch
 git status --short
 ```
 
@@ -144,7 +144,7 @@ git status --short
 те же места, что и патч. Тогда накладывайте с трёхсторонним слиянием:
 
 ```bash
-git apply --3way ~/opticbook4800-genesys-v5.patch
+git apply --3way ~/opticbook4800-genesys-v6.patch
 git status --short
 ```
 
@@ -726,3 +726,30 @@ Marker, Docling): выдают текст с уровнями заголовко
 Нейросетевые «улучшатели» изображений для чистки сканов с планшетника
 не нужны: пыль и точки — задача морфологии, ScanTailor решает её
 предсказуемо, а нейросеть может дорисовать то, чего в книге не было.
+
+
+## 18. Что изменилось в v6
+
+- Эталоны белого теперь **шесть**: серые `-300-gray.dat`, `-600-gray.dat`,
+  `-1200-gray.dat` и цветные `-300.dat`, `-600.dat`, `-1200.dat`. Ширина
+  при съёмке не важна — `-x 20` достаточно, `-t 20` по-прежнему обязателен:
+
+```bash
+for m in "Gray 300" "Gray 600" "Gray 1200" "Color 300" "Color 600" "Color 1200"; do set -- $m
+rm -f ~/.sane/plustek-opticbook-4800.cal
+OB4800_CALIB_Y_MM=40 OB4800_WHITE_REF_SAVE=1 SANE_CONFIG_DIR=/usr/local/etc/sane.d LD_LIBRARY_PATH=/usr/local/lib \
+  /usr/local/bin/scanimage -d genesys --mode $1 --format=png --resolution $2 -l 0 -t 20 -x 20 -y 5 >/dev/null && echo "$1 $2 ok"
+done
+```
+
+- Кадр по ширине 212.0 мм (было 212.7): последние 0.7 мм у края стекла
+  чип отдаёт со сдвигом. Лист A4 входит целиком.
+- Если калибровка снялась битой (лампа не зажглась, сканер не проснулся),
+  скан не будет чёрным — драйвер откажет с сообщением
+  `shading calibration failed, the white reference reads N`. Выключите и
+  включите сканер, повторите. В кэш такое не попадает.
+- Каретка всегда паркуется до конца перед тем, как драйвер отпускает
+  устройство; сканы подряд без пауз безопасны.
+- Опция `--scan-exposure-time` (появилась в SANE 1.4) для этого сканера
+  игнорируется: экспозиция жёстко привязана к такту CCD и профилю мотора.
+- После пересборки драйвера, как и раньше: `rm -f ~/.sane/plustek-opticbook-4800.cal`.

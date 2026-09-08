@@ -5,7 +5,7 @@ Full support for the Plustek OpticBook 4800 book-edge scanner (USB
 Before this the scanner was not supported on Linux at all.
 
 Gray and color, 75/100/150/200/300/600/1200 dpi, full A4, with shading
-calibration: white paper comes out at 195–199/255 with no vertical banding
+calibration: white paper comes out at 187–198/255 with no vertical banding
 at any resolution, color balance on white 197/197/199, geometry within
 0.2 mm across the three CCD clockings of the sensor. Works from
 `scanimage`, `simple-scan`, `xsane`, `gscan2pdf` and anything else built on
@@ -17,9 +17,9 @@ The patch has been submitted upstream: [sane-project/backends!1009](https://gitl
 
 | Path | Contents |
 |---|---|
-| `opticbook4800-genesys-v5.patch` | the patch itself, applies to the sane-backends master branch |
+| `opticbook4800-genesys-v6.patch` | the patch itself, applies to the sane-backends master branch |
 | `ob4800-conf-desc.patch` | entries for `genesys.conf.in` and `genesys.desc` |
-| `make_patch_v5.sh` | rebuilds the patch from a working tree and verifies it on a clean clone |
+| `make_patch_v6.sh` | rebuilds the patch from a working tree and verifies it on a clean clone |
 | `docs/УСТАНОВКА-OpticBook-4800.md` | installation guide, in Russian: build, install, one-off white reference capture, troubleshooting |
 | `docs/TECHNICAL-NOTES.md` | technical description for the SANE maintainers, in English: what the GL845 needed and why, plus the pitfalls met on the way |
 | `docs/НАХОДКИ-GL845.md` | the same findings in Russian, as a digest for anyone continuing the work |

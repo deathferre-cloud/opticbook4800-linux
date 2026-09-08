@@ -1,13 +1,13 @@
 #!/bin/bash
-# Собирает opticbook4800-genesys-v5.patch из рабочего дерева ~/sane-backends
+# Собирает opticbook4800-genesys-v6.patch из рабочего дерева ~/sane-backends
 # (клон тега 1.2.1 с наложенными правками) и проверяет, что патч ложится на
 # чистый клон 1.2.1 и собирается.
 #
 # Запуск:  bash make_patch_v4.sh
-# Результат: ~/opticbook4800-genesys-v5.patch
+# Результат: ~/opticbook4800-genesys-v6.patch
 set -e
 TREE=~/sane-backends
-OUT=~/opticbook4800-genesys-v5.patch
+OUT=~/opticbook4800-genesys-v6.patch
 
 cd "$TREE"
 if ! git rev-parse --verify 1.2.1 >/dev/null 2>&1; then
@@ -17,7 +17,7 @@ echo "== файлы, отличающиеся от 1.2.1:"
 git diff --stat 1.2.1 -- backend doc | tail -20
 
 # только исходники, без результатов сборки
-git diff 1.2.1 -- \
+git diff master -- \
     backend/genesys \
     backend/genesys.conf.in \
     doc/descriptions/genesys.desc \
@@ -27,7 +27,7 @@ echo "== патч: $OUT, $(wc -l < "$OUT") строк, $(grep -c '^diff --git' "
 # проверка на чистом клоне
 CHK=$(mktemp -d /tmp/ob4800-check.XXXX)
 echo "== проверка на чистом 1.2.1 в $CHK"
-git clone --quiet --branch 1.2.1 --depth 1 https://gitlab.com/sane-project/backends.git "$CHK/src"
+git clone --quiet https://gitlab.com/sane-project/backends.git "$CHK/src"
 cd "$CHK/src"
 git apply --check "$OUT" && echo "   ложится чисто"
 git apply "$OUT"
