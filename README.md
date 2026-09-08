@@ -11,7 +11,7 @@ at any resolution, color balance on white 197/197/199, geometry within
 `scanimage`, `simple-scan`, `xsane`, `gscan2pdf` and anything else built on
 SANE.
 
-The patch has been submitted upstream: <!-- ссылка на merge request -->
+The patch has been submitted upstream: [sane-project/backends!1009](https://gitlab.com/sane-project/backends/-/merge_requests/1009)
 
 ## What is here
 
