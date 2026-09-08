@@ -1,0 +1,28 @@
+diff --git a/backend/genesys.conf.in b/backend/genesys.conf.in
+--- a/backend/genesys.conf.in
++++ b/backend/genesys.conf.in
+@@ -167,5 +167,8 @@ usb 0x1803 0x162e
+ # Plustek OpticBook 3800
+ usb 0x07b3 0x1300
+ 
++# Plustek OpticBook 4800
++usb 0x07b3 0x1301
++
+ # Plustek OpticFilm 7600i
+ usb 0x07b3 0x0c3b
+diff --git a/doc/descriptions/genesys.desc b/doc/descriptions/genesys.desc
+--- a/doc/descriptions/genesys.desc
++++ b/doc/descriptions/genesys.desc
+@@ -71,6 +71,12 @@
+ :status :complete
+ :comment "900, 1800, 3600 and 7200 dpi resolutions are supported in both regular transparency and infrared modes"
+ 
++:model "OpticBook 4800"
++:interface "USB"
++:usbid "0x07b3" "0x1301"
++:status :good
++:comment "Gray and color, 75/100/150/200/300/600/1200 dpi, full A4 with shading calibration. AFE gains fixed per resolution group; optional per-unit white reference file."
++
+ ; -----------------------------------------------------------------------------
+ 
+ :mfg "Medion/Lifetec/Tevion/Cytron"
